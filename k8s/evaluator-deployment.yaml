@@ -1,0 +1,100 @@
+# ############################################################
+# #                ACELOGIC PLATFORM v4                      #
+# ############################################################
+# # Module        : EVALUATOR-DEPLOYMENT
+# # Environment   : Development
+# # Version       : 4.0.2
+# # Updated       : 2026-05-12
+# #            
+# ############################################################
+# HA with probes and resources
+# updated to v4.0.2 with security hardening and affinity rules
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acelogic-evaluator
+  namespace: acelogic-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: acelogic-evaluator
+  template:
+    metadata:
+      labels:
+        app: acelogic-evaluator
+    spec:
+      serviceAccountName: acelogic-evaluator
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+      containers:
+      - name: evaluator
+        image: acelogic/evaluator:v4.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8443
+        env:
+        - name: POLICY_NAMESPACE
+          value: "acelogic-system"
+        volumeMounts:
+        - name: tls
+          mountPath: /app/tls
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+      volumes:
+      - name: tls
+        secret:
+          secretName: acelogic-evaluator-tls
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: acelogic-evaluator
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: acelogic-evaluator
+  namespace: acelogic-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: acelogic-evaluator
+
+# ############################################################
+# # End of File: evaluator-deployment.yaml
+# # Do not modify without code review
+# ############################################################
+

@@ -1,0 +1,44 @@
+# ############################################################
+# #                ACELOGIC PLATFORM v4                      #
+# ############################################################
+# # Module        : VALIDATING-WEBHOOK
+# # Environment   : Development
+# # Version       : 4.0.0
+# # Updated       : 2026-05-10
+# #            
+# ############################################################
+
+
+#namespaceSelector added
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: acelogic-evaluator
+webhooks:
+- name: evaluator.acelogic.ai
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  timeoutSeconds: 5
+  failurePolicy: Fail
+  namespaceSelector:
+    matchLabels:
+      acelogic.ai/enabled: "true"
+  clientConfig:
+    service:
+      name: acelogic-evaluator
+      namespace: acelogic-system
+      path: "/validate"
+    caBundle: <BASE64_ENCODED_CA_CERT>
+  rules:
+  - operations: ["CREATE","UPDATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["pods"]
+
+        
+# ############################################################
+# # End of File: validating-webhook.yaml
+# # Do not modify without code review
+# ############################################################
+

@@ -1,0 +1,28 @@
+# ############################################################
+# #                ACELOGIC PLATFORM v4                      #
+# ############################################################
+# # Module        : EVALUATOR-SERVICE
+# # Environment   : Development
+# # Version       : 4.0.0
+# # Updated       : 2026-05-10
+# #          
+# ############################################################
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: acelogic-evaluator
+  namespace: acelogic-system
+spec:
+  selector:
+    app: acelogic-evaluator
+  ports:
+    - port: 443
+      targetPort: 8443
+
+
+# ############################################################
+# # End of File: evaluator-service.yaml
+# # Do not modify without code review
+# ############################################################
+

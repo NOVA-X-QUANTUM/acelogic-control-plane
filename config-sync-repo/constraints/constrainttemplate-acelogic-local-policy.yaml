@@ -1,0 +1,106 @@
+# ############################################################
+# #                ACELOGIC PLATFORM v4                      #
+# ############################################################
+# # Module        : CONSTRAINTTEMPLATE-ACELOGIC-LOCAL-POLICY
+# # Environment   : Development
+# # Version       : 4.0.0
+# # Updated       : 2026-05-10
+# #         
+# ############################################################
+
+# Gatekeeper note:
+# This requires AgentIdentityPolicy resources synced into data.inventory.
+# For full hash recomputation, use the custom local-policy-evaluator webhook.
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: acelogicpolicybinding
+spec:
+  crd:
+    spec:
+      names:
+        kind: ACELOGICPolicyBinding
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            policyNamespace:
+              type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package acelogic.policybinding
+
+        get_policy(agent_id, policy_ns) = policy {
+          some name
+          policy := data.inventory.namespace[policy_ns]["acelogic.ai/v1"]["AgentIdentityPolicy"][name]
+          policy.spec.agentId == agent_id
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          agent_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          not get_policy(agent_id, input.parameters.policyNamespace)
+          msg := sprintf("ACELOGIC DENY: no AgentIdentityPolicy for agentId=%v", [agent_id])
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          agent_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy.spec.state != "ACTIVE"
+          msg := sprintf("ACELOGIC DENY: identity not ACTIVE state=%v", [policy.spec.state])
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          agent_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          symbolic := input.review.object.metadata.annotations["acelogic.ai/symbolic-namespace"]
+          symbolic != policy.spec.symbolicNamespace
+          msg := "ACELOGIC DENY: symbolic namespace mismatch"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          agent_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          input.review.object.metadata.namespace != policy.spec.k8sNamespace
+          msg := "ACELOGIC DENY: projected Kubernetes namespace mismatch"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          agent_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy.spec.licenseTier != "TIER_5"
+          policy.spec.covenantHash
+          msg := "ACELOGIC DENY: covenantHash is only allowed for Tier 5"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          agent_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy.spec.licenseTier == "TIER_5"
+          not policy.spec.covenantHash
+          msg := "ACELOGIC DENY: Tier 5 requires covenantHash"
+        }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: ACELOGICPolicyBinding
+metadata:
+  name: acelogic-policy-binding
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    policyNamespace: acelogic-system
+# ############################################################
+# # End of File: constrainttemplate-acelogic-local-policy.yaml
+# # Do not modify without code review
+# ############################################################
+

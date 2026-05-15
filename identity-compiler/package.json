@@ -1,0 +1,9 @@
+{
+  "name": "@acelogic/identity-compiler",
+  "version": "0.3.0",
+  "type": "module",
+  "main": "src/index.js",
+  "dependencies": {
+    "yaml": "^2.4.5"
+  }
+}

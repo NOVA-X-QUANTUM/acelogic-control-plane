@@ -1,0 +1,75 @@
+# ############################################################
+# #                ACELOGIC PLATFORM v4                      #
+# ############################################################
+# # Module        : CONSTRAINTTEMPLATE-ACELOGIC-AGENT-ADMISSION
+# # Environment   : Development
+# # Version       : 4.0.0
+# # Updated       : 2026-05-10
+# #             
+# ############################################################
+
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: acelogicagentadmission
+spec:
+  crd:
+    spec:
+      names:
+        kind: ACELOGICAgentAdmission
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            enforcedNamespaces:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package acelogic.agentadmission
+
+        enforced {
+          input.parameters.enforcedNamespaces[_] == input.review.object.metadata.namespace
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          enforced
+          not input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          msg := "ACELOGIC DENY: missing acelogic.ai/agent-id"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          enforced
+          not input.review.object.metadata.annotations["acelogic.ai/symbolic-namespace"]
+          msg := "ACELOGIC DENY: missing acelogic.ai/symbolic-namespace"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          enforced
+          not input.review.object.metadata.annotations["acelogic.ai/purpose-hash"]
+          msg := "ACELOGIC DENY: missing acelogic.ai/purpose-hash"
+        }
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: ACELOGICAgentAdmission
+metadata:
+  name: acelogic-agent-admission-required
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    enforcedNamespaces:
+      - us-enterprise-partner-ai
+      - us-defense-ran-edge
+# ############################################################
+# # End of File: constrainttemplate-acelogic-agent-admission.yaml
+# # Do not modify without code review
+# ############################################################
+
