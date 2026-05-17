@@ -3,11 +3,11 @@
 ############################################################
 # Module        : CONSTRAINTTEMPLATE-ACELOGIC-LOCAL-POLICY
 # Environment   : Development
-# Version       : 4.1.0
+# Version       : 4.2.0
 # Updated       : 2026-05-15
 #
 # Purpose:
-# Cluster-local ACELOGIC policy binding enforcement for
+# Cluster-local ACELOGIC™ policy binding enforcement for
 # deterministic identity, symbolic namespace, continuity state,
 # namespace projection, and license-tier governance.
 #
@@ -15,10 +15,11 @@
 # Requires AgentIdentityPolicy resources synced into
 # data.inventory.
 #
-# For full cryptographic hash recomputation, continuity
-# reconciliation, duplicate-runtime arbitration, and enterprise
-# conflict resolution, use the custom ACELOGIC local-policy-evaluator
-# webhook.
+# This Gatekeeper policy provides metadata-level governance.
+# Full cryptographic hash recomputation, duplicate-runtime
+# arbitration, continuity reconciliation, lease evaluation,
+# and enterprise conflict resolution are enforced by the
+# ACELOGIC™ local-policy-evaluator webhook.
 ############################################################
 
 apiVersion: templates.gatekeeper.sh/v1
@@ -36,9 +37,11 @@ spec:
       validation:
         openAPIV3Schema:
           type: object
+
           properties:
             policyNamespace:
               type: string
+              minLength: 1
 
   targets:
     - target: admission.k8s.gatekeeper.sh
@@ -59,23 +62,57 @@ spec:
         }
 
         ####################################################
-        # Agent Identity Extraction
+        # Safe Metadata Extraction
         ####################################################
 
-        agent_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+        labels := object.get(input.review.object.metadata, "labels", {})
 
-        symbolic_namespace := input.review.object.metadata.annotations["acelogic.ai/symbolic-namespace"]
+        annotations := object.get(input.review.object.metadata, "annotations", {})
+
+        agent_id := object.get(labels, "acelogic.ai/agent-id", "")
+
+        symbolic_namespace := object.get(annotations, "acelogic.ai/symbolic-namespace", "")
+
+        ####################################################
+        # Inventory Availability
+        ####################################################
+
+        inventory_available {
+          data.inventory.namespace[input.parameters.policyNamespace]
+        }
 
         ####################################################
         # AgentIdentityPolicy Lookup
         ####################################################
 
-        get_policy(agent_id, policy_ns) = policy {
+        matching_policies[policy] {
           some name
 
-          policy := data.inventory.namespace[policy_ns]["acelogic.ai/v1"]["AgentIdentityPolicy"][name]
+          policy := data.inventory.namespace[input.parameters.policyNamespace]["acelogic.ai/v1"]["AgentIdentityPolicy"][name]
 
           policy.spec.agentId == agent_id
+        }
+
+        exactly_one_policy {
+          count(matching_policies) == 1
+        }
+
+        selected_policy = policy {
+          exactly_one_policy
+          policy := matching_policies[_]
+        }
+
+        ####################################################
+        # Fail-Closed Inventory Protection
+        ####################################################
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          protected_operation
+
+          not inventory_available
+
+          msg := sprintf("ACELOGIC DENY: policy inventory unavailable namespace=%v", [input.parameters.policyNamespace])
         }
 
         ####################################################
@@ -86,7 +123,7 @@ spec:
           input.review.kind.kind == "Pod"
           protected_operation
 
-          not input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          agent_id == ""
 
           msg := "ACELOGIC DENY: missing deterministic agent identity label"
         }
@@ -99,24 +136,35 @@ spec:
           input.review.kind.kind == "Pod"
           protected_operation
 
-          not input.review.object.metadata.annotations["acelogic.ai/symbolic-namespace"]
+          symbolic_namespace == ""
 
           msg := "ACELOGIC DENY: missing symbolic namespace annotation"
         }
 
         ####################################################
-        # Missing AgentIdentityPolicy Binding
+        # Ambiguous / Missing Policy Binding
         ####################################################
 
         violation[{"msg": msg}] {
           input.review.kind.kind == "Pod"
           protected_operation
-
+          inventory_available
           agent_id != ""
 
-          not get_policy(agent_id, input.parameters.policyNamespace)
+          count(matching_policies) == 0
 
-          msg := sprintf("ACELOGIC DENY: no active continuity policy bound to agent identity agentId=%v", [agent_id])
+          msg := sprintf("ACELOGIC DENY: no AgentIdentityPolicy bound to agentId=%v", [agent_id])
+        }
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Pod"
+          protected_operation
+          inventory_available
+          agent_id != ""
+
+          count(matching_policies) > 1
+
+          msg := sprintf("ACELOGIC DENY: multiple AgentIdentityPolicy objects bound to agentId=%v", [agent_id])
         }
 
         ####################################################
@@ -126,10 +174,11 @@ spec:
         violation[{"msg": msg}] {
           input.review.kind.kind == "Pod"
           protected_operation
-
+          inventory_available
           agent_id != ""
+          exactly_one_policy
 
-          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy := selected_policy
 
           policy.spec.state != "ACTIVE"
 
@@ -143,11 +192,12 @@ spec:
         violation[{"msg": msg}] {
           input.review.kind.kind == "Pod"
           protected_operation
-
+          inventory_available
           agent_id != ""
           symbolic_namespace != ""
+          exactly_one_policy
 
-          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy := selected_policy
 
           symbolic_namespace != policy.spec.symbolicNamespace
 
@@ -161,10 +211,11 @@ spec:
         violation[{"msg": msg}] {
           input.review.kind.kind == "Pod"
           protected_operation
-
+          inventory_available
           agent_id != ""
+          exactly_one_policy
 
-          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy := selected_policy
 
           input.review.object.metadata.namespace != policy.spec.k8sNamespace
 
@@ -172,39 +223,41 @@ spec:
         }
 
         ####################################################
-        # Continuity / Governance Hash Tier Restriction
+        # Covenant Hash Tier Restriction
         ####################################################
 
         violation[{"msg": msg}] {
           input.review.kind.kind == "Pod"
           protected_operation
-
+          inventory_available
           agent_id != ""
+          exactly_one_policy
 
-          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy := selected_policy
 
           policy.spec.licenseTier != "TIER_5"
-          policy.spec.continuityHash
+          object.get(policy.spec, "covenantHash", "") != ""
 
-          msg := "ACELOGIC DENY: continuityHash is only allowed for Tier 5"
+          msg := "ACELOGIC DENY: covenantHash is only allowed for Tier 5"
         }
 
         ####################################################
-        # Tier 5 Continuity Hash Requirement
+        # Tier 5 Covenant Hash Requirement
         ####################################################
 
         violation[{"msg": msg}] {
           input.review.kind.kind == "Pod"
           protected_operation
-
+          inventory_available
           agent_id != ""
+          exactly_one_policy
 
-          policy := get_policy(agent_id, input.parameters.policyNamespace)
+          policy := selected_policy
 
           policy.spec.licenseTier == "TIER_5"
-          not policy.spec.continuityHash
+          object.get(policy.spec, "covenantHash", "") == ""
 
-          msg := "ACELOGIC DENY: Tier 5 requires continuityHash"
+          msg := "ACELOGIC DENY: Tier 5 requires covenantHash"
         }
 
         ####################################################
@@ -215,8 +268,11 @@ spec:
           input.review.kind.kind == "Pod"
           input.review.operation == "UPDATE"
 
-          old_id := input.review.oldObject.metadata.labels["acelogic.ai/agent-id"]
-          new_id := input.review.object.metadata.labels["acelogic.ai/agent-id"]
+          old_labels := object.get(input.review.oldObject.metadata, "labels", {})
+          new_labels := object.get(input.review.object.metadata, "labels", {})
+
+          old_id := object.get(old_labels, "acelogic.ai/agent-id", "")
+          new_id := object.get(new_labels, "acelogic.ai/agent-id", "")
 
           old_id != new_id
 
@@ -231,8 +287,11 @@ spec:
           input.review.kind.kind == "Pod"
           input.review.operation == "UPDATE"
 
-          old_symbolic := input.review.oldObject.metadata.annotations["acelogic.ai/symbolic-namespace"]
-          new_symbolic := input.review.object.metadata.annotations["acelogic.ai/symbolic-namespace"]
+          old_annotations := object.get(input.review.oldObject.metadata, "annotations", {})
+          new_annotations := object.get(input.review.object.metadata, "annotations", {})
+
+          old_symbolic := object.get(old_annotations, "acelogic.ai/symbolic-namespace", "")
+          new_symbolic := object.get(new_annotations, "acelogic.ai/symbolic-namespace", "")
 
           old_symbolic != new_symbolic
 
@@ -247,10 +306,17 @@ metadata:
   name: acelogic-policy-binding
 
 spec:
+  enforcementAction: deny
+
   match:
     kinds:
       - apiGroups: [""]
         kinds: ["Pod"]
+
+    excludedNamespaces:
+      - kube-system
+      - gatekeeper-system
+      - acelogic-system
 
   parameters:
     policyNamespace: acelogic-system
