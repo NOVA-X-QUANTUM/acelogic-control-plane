@@ -1,49 +1,145 @@
-# ############################################################
-# #                ACELOGIC PLATFORM v4                      #
-# ############################################################
-# # Module        : EA-482991
-# # Environment   : Development
-# # Version       : 4.0.0
-# # Updated       : 2026-05-10
-# #         
-# ############################################################
+############################################################
+# ACELOGIC PLATFORM v4
+############################################################
+# Module        : EA-482991
+# Environment   : Development
+# Version       : 4.1.0
+# Updated       : 2026-05-15
+#
+# Purpose:
+# Deterministic enterprise agent identity policy for
+# ACELOGIC™ runtime governance, namespace projection,
+# continuity enforcement, and execution authorization.
+############################################################
 
 apiVersion: acelogic.ai/v1
 kind: AgentIdentityPolicy
+
 metadata:
   name: ea-482991
   namespace: acelogic-system
+
 spec:
+  ##########################################################
+  # Core Identity
+  ##########################################################
+
   agentId: EA-482991
   agentClass: ENTERPRISE_AGENT
+
+  state: ACTIVE
+
+  ##########################################################
+  # License & Governance
+  ##########################################################
+
   licenseTier: TIER_4
+
   grammarLicense:
     enabled: true
     level: RESTRICTED
+
     allowedPrefixes:
       - "#us#.enterprise."
+
+  ##########################################################
+  # Namespace Projection
+  ##########################################################
+
   symbolicNamespace: "#us#.enterprise.partner.ai"
+
   k8sNamespace: "us-enterprise-partner-ai"
+
+  ##########################################################
+  # Mission Definition
+  ##########################################################
+
   mission: "Enterprise AI Control"
-  owner: "IBM"
-  fingerprintAlgorithm: "SHA-256"
+
+  ##########################################################
+  # Ownership
+  ##########################################################
+
+  owner:
+    orgId: "urn:us:org:example-enterprise"
+    displayName: "Example Enterprise"
+
+  ##########################################################
+  # Deterministic Identity Fingerprint
+  ##########################################################
+
+  fingerprintAlgorithm: "SHA3-256"
+
   fingerprintVersion: "v1"
-  fingerprint: "0000000000000000000000000000000000000000000000000000000000000000"
+
+  fingerprint: "6d5d0ff1c9c5e5cbb18f51f52c5dc1c58c31fd1f7a9fd91e5eb7d6ef9cb6fd91"
+
+  ##########################################################
+  # Purpose Validation
+  ##########################################################
+
   purposeHashAlgorithm: "SHA3-256"
-  purposeHash: "0000000000000000000000000000000000000000000000000000000000000000"
-  covenantHash: null
-  state: ACTIVE
+
+  purposeHash: "83d0ab11a43d95b1f8c5ef4c6df9d50fcbef4b6b22e6a0d53c65d30c51c4d4a1"
+
+  ##########################################################
+  # Continuity Governance
+  ##########################################################
+
+  continuityHash: null
+
+  continuity:
+    enabled: true
+
+    continuityClass: ENTERPRISE
+
+    continuityLevel: STANDARD
+
+    resurrectionAllowed: false
+
+  ##########################################################
+  # Identity Lineage
+  ##########################################################
+
+  lineage:
+    registryId: "urn:us:registry:enterprise"
+
+    parent: null
+
+    genesisEpoch: 1
+
+  ##########################################################
+  # Issuance Authority
+  ##########################################################
+
+  issuer:
+    authority: "ACELOGIC_ROOT"
+
+    issuedBy: "enterprise-portal"
+
+  ##########################################################
+  # Lease Governance
+  ##########################################################
+
   lease:
     epoch: 1
+
     expiresAt: "2026-12-31T23:59:59Z"
+
+  ##########################################################
+  # Source Attribution
+  ##########################################################
+
   source:
     origin: "enterprise-portal"
+
+  ##########################################################
+  # Lifecycle Metadata
+  ##########################################################
+
   lastUpdated: "2026-01-01T00:00:00Z"
 
-
-
-# ############################################################
-# # End of File: ea-482991.yaml
-# # Do not modify without code review
-# ############################################################
-
+############################################################
+# End of File: ea-482991.yaml
+# Do not modify without code review
+############################################################
