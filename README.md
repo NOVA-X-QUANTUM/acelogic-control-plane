@@ -1,19 +1,20 @@
-
 <!--
 ##############################################################################
 # ACELOGIC PLATFORM v4.1.0
-# Module        : README 
+# Module        : README
 # Environment   : Production
 # Updated       : 2026-05-15
 ##############################################################################
 -->
 
-# 🧠 ACELOGIC Control Plane  
-## *Deterministic Identity & Execution Governance for Distributed AI Infrastructure*
+# 🧠 ACELOGIC™ Control Plane
+## Deterministic Identity & Execution Governance for Distributed AI Infrastructure
+
+> Identity-aware runtime governance for autonomous systems operating across Kubernetes, cloud, edge, and AI-native infrastructure.
 
 <p align="center">
   <strong>Kubernetes decides <em>where</em> workloads run.</strong><br/>
-  <strong>ACELOGIC decides <em>whether</em> they are allowed to run.</strong>
+  <strong>ACELOGIC™ decides <em>whether</em> they are allowed to run.</strong>
 </p>
 
 <p align="center">
@@ -25,43 +26,98 @@
 
 ---
 
-## ✨ Overview
+# ✨ Overview
 
-This production‑grade implementation provides a **decentralized identity control plane** for AI infrastructure.  
-It delivers deterministic identity enforcement, license‑gated symbolic grammar, and sovereign execution control —  
-**without external verifiers or centralized state**.
+ACELOGIC™ is a deterministic identity and execution governance layer for distributed AI infrastructure.
+
+This production-grade implementation introduces:
+
+- deterministic identity enforcement
+- continuity-aware execution governance
+- duplicate-runtime prevention
+- canonical workload validation
+- policy-bound execution control
+- runtime continuity enforcement
+
+directly into Kubernetes-native infrastructure.
+
+ACELOGIC™ operates as a decentralized control plane for autonomous systems running across:
+
+- Kubernetes environments
+- cloud infrastructure
+- edge orchestration
+- distributed AI systems
+- AI-native runtime environments
+- AI-RAN / telecom infrastructure
 
 ---
 
-## 📦 Components
+# ⚡ Why ACELOGIC™ Exists
 
-| Component                       | Description                                                                                                                                                     |
-|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Identity Compiler SDK**       | Deterministic CRD generator using dual‑hash (SHA‑256 fingerprint + SHA3‑256 purpose hash), grammar licensing, covenant rules, and namespace projection.         |
-| **Local Policy Evaluator**      | Standalone Kubernetes admission webhook that caches `AgentIdentityPolicy` CRDs and enforces admission locally (no Redis, no external verifier). Includes Prometheus metrics and structured audit logging. |
-| **AgentIdentityPolicy CRD**     | Full Kubernetes CRD with schema validation and printer columns.                                                                                                 |
-| **Example Policies**            | Enterprise agent policy, namespace projection, and test pods (valid and invalid).                                                                               |
+Traditional orchestration systems schedule workloads.
 
-> **Note:** The full ACELOGIC Conflict Resolver (proprietary reconciliation engine) is not included in this public reference. Contact ACELOGIC for the enterprise version.
+They do NOT verify:
+
+- whether a workload is canonical
+- whether another instance already resumed execution
+- whether identity continuity remains intact
+- whether runtime authority is still valid
+- whether execution paths have forked
+
+As autonomous systems become persistent runtime actors, infrastructure requires:
+
+- deterministic identity
+- continuity enforcement
+- runtime governance
+- execution authority validation
+- duplicate-agent prevention
+- split-brain protection
+
+ACELOGIC™ introduces deterministic identity governance directly into the execution path.
 
 ---
 
-## 🏛️ Architecture Overview
+# 📦 Components
 
-The system follows a **decentralized, Git‑driven policy distribution model**:
+| Component | Description |
+|---|---|
+| **Identity Compiler SDK** | Deterministic CRD generator using SHA-256 identity fingerprinting, SHA3-256 purpose hashing, namespace projection, execution constraints, and policy-bound identity validation. |
+| **Local Policy Evaluator** | Kubernetes admission webhook that evaluates AgentIdentityPolicy CRDs locally without centralized state or external verifiers. Includes metrics and structured audit logging. |
+| **AgentIdentityPolicy CRD** | Kubernetes-native CRD for identity continuity enforcement and execution governance. |
+| **Admission Enforcement Layer** | Runtime admission validation enforcing identity continuity, lease validity, and deterministic execution policy. |
+| **Metrics & Audit Pipeline** | Prometheus-compatible telemetry and structured audit logging for enforcement visibility. |
+| **Example Policies** | Enterprise policy examples, namespace projections, and validation test workloads. |
 
-1. Any compliant origin (ACELOGIC.ai, enterprise portal, sovereign portal) uses the **Identity Compiler SDK** to produce an `AgentIdentityPolicy` CRD.
-2. Policies are stored in a Git repository and distributed via **Config Sync**.
-3. Each cluster runs a **Local Policy Evaluator** (admission webhook) that caches policies from the Kubernetes API server (periodic list; a watch‑based informer plan is documented in `docs/cache-implementation-plan.md`).
+> **Note:** The proprietary ACELOGIC™ Conflict Resolver and enterprise Continuity Engine are not included in this public reference implementation.
 
-### 🔁 System Flow
+---
+
+# 🏛️ Architecture Overview
+
+ACELOGIC™ follows a decentralized Git-driven policy distribution architecture.
+
+Policies are distributed through standard Kubernetes-native synchronization mechanisms while enforcement occurs locally at cluster admission time.
+
+This architecture enables:
+
+- deterministic runtime governance
+- cluster-local enforcement
+- continuity-aware orchestration
+- fail-closed execution control
+- distributed execution integrity
+
+without centralized runtime dependencies.
+
+---
+
+# 🔁 System Flow
 
 ```text
-ACELOGIC PROTOCOL LAYER 
+ACELOGIC PROTOCOL LAYER
          │
-         ├── ACELOGIC.ai (Tier 0–2)
-         ├── Enterprise Portal (Tier 3–4)
-         └── Sovereign Portal (Tier 5)
+         ├── ACELOGIC.ai
+         ├── Enterprise Portal
+         └── Private Infrastructure Portal
                 │
                 ▼
         Identity Compiler SDK
@@ -73,67 +129,234 @@ ACELOGIC PROTOCOL LAYER
         Git / Policy Registry
                 │
                 ▼
-        Config Sync
+           Config Sync
                 │
                 ▼
-        Cluster‑local Policy Layer 
+     Cluster-local Policy Layer
                 │
                 ▼
-        Admission Webhook 
+        Admission Webhook
                 │
                 ▼
-        ALLOW / DENY
-```
-
-### 🧭 Architecture Boundary Diagram
-
-```
-AI Agents / Workloads
-        │
-        ▼
-┌───────────────────────────────┐
-│   ACELOGIC Control Plane      │
-│  (Identity + Authority +      │
-│   Continuity + SAFE_MODE)     │
-└───────────────────────────────┘
-        │
-        ▼
-┌───────────────────────────────┐
-│         Kubernetes            │
-│   (Orchestration + Compute)   │
-└───────────────────────────────┘
-        │
-        ▼
-     Infrastructure
+      ALLOW / DENY / SAFE_MODE
 ```
 
 ---
 
-## ✅ Prerequisites
+# 🧭 Architecture Boundary Diagram
 
-Install the following dependencies before deployment:
-
-- 🐳 Docker  
-- 🧩 `kind` or `minikube`  
-- ☸️ `kubectl`  
-- 🔐 `openssl`  
-- 📦 Node.js (for the Identity Compiler SDK)
+```text
+AI Agents / Autonomous Workloads
+                │
+                ▼
+┌────────────────────────────────────┐
+│      ACELOGIC™ Control Plane       │
+│────────────────────────────────────│
+│ • Identity Verification            │
+│ • Authority Validation             │
+│ • Continuity Enforcement           │
+│ • Duplicate Runtime Prevention     │
+│ • Lease Validation                 │
+│ • SAFE_MODE Enforcement            │
+│ • Runtime Governance               │
+└────────────────────────────────────┘
+                │
+                ▼
+┌────────────────────────────────────┐
+│            Kubernetes              │
+│────────────────────────────────────│
+│  Scheduling • Compute • Runtime    │
+└────────────────────────────────────┘
+                │
+                ▼
+         Infrastructure Layer
+```
 
 ---
 
-## 🚀 Quick Start
+# 🔐 Deterministic Governance Model
 
-Clone the repository and run the following commands from the `scripts` directory:
+ACELOGIC™ introduces identity-aware runtime enforcement directly into Kubernetes execution flow.
+
+Every workload must validate:
+
+- canonical identity fingerprint
+- purpose hash integrity
+- continuity lineage
+- active execution authority
+- valid execution lease
+
+before execution is permitted.
+
+If continuity validation fails:
+
+- execution is denied
+- SAFE_MODE may be enforced
+- mutation authority is revoked
+- duplicate execution paths are rejected
+
+This prevents:
+
+- split-brain execution
+- duplicate autonomous runtimes
+- continuity divergence
+- conflicting authority states
+- unauthorized workload resurrection
+
+---
+
+# 🌐 Infrastructure Positioning
+
+ACELOGIC™ operates ABOVE orchestration infrastructure.
+
+| Infrastructure Layer | Responsibility |
+|---|---|
+| Kubernetes | workload scheduling |
+| Argo CD / Config Sync | deployment synchronization |
+| OpenTelemetry | tracing instrumentation |
+| Prometheus | metrics collection |
+| ACELOGIC™ | identity + continuity + execution governance |
+
+ACELOGIC™ governs whether autonomous workloads are permitted to execute.
+
+---
+
+# ☸️ Kubernetes Integration
+
+ACELOGIC™ integrates directly into Kubernetes-native infrastructure using:
+
+- admission webhooks
+- CRD-based policy definitions
+- namespace isolation
+- GitOps distribution
+- cluster-local evaluation
+- runtime enforcement hooks
+
+This enables deterministic enforcement before workload execution resumes.
+
+---
+
+# 🌐 Distributed Infrastructure Support
+
+ACELOGIC™ is designed for distributed environments including:
+
+- multi-cluster Kubernetes
+- edge orchestration
+- private cloud infrastructure
+- AI-native compute environments
+- AI-RAN / telecom infrastructure
+- disconnected or partitioned runtime environments
+
+The architecture enables:
+
+- continuity-safe recovery
+- deterministic runtime governance
+- distributed identity propagation
+- canonical execution preservation
+
+across cloud, edge, and telecom infrastructure.
+
+---
+
+# 📊 Metrics and Audit Logging
+
+## 📈 Metrics Endpoint
+
+The webhook exposes a Prometheus-compatible `/metrics` endpoint.
+
+| Metric | Description |
+|---|---|
+| `admission_allow_total` | Approved workload admissions |
+| `admission_deny_total` | Rejected workload admissions |
+| `identity_verify_fail_total` | Identity fingerprint validation failures |
+| `purpose_verify_fail_total` | Purpose hash validation failures |
+| `continuity_fail_total` | Duplicate identity or continuity failures |
+| `lease_expired_total` | Expired lease rejections |
+| `safe_mode_total` | SAFE_MODE enforcement events |
+
+---
+
+## 📝 Audit Logging
+
+All admission decisions are logged in structured JSON format including:
+
+- timestamp
+- request UID
+- namespace and workload name
+- admission decision
+- denial reason
+- identity fingerprint
+- continuity validation result
+
+---
+
+# 🧪 Testing
+
+| Test Script | Purpose |
+|---|---|
+| `test.sh` | Basic acceptance validation |
+| `complete-tests.sh` | Full hardening validation suite |
+| `continuity-tests.sh` | Duplicate identity and continuity enforcement validation |
+| `safe-mode-tests.sh` | SAFE_MODE enforcement scenarios |
+
+Validation scenarios include:
+
+- invalid identity fingerprint
+- invalid purpose hash
+- expired lease
+- duplicate runtime detection
+- continuity mismatch
+- unauthorized execution recovery
+- fork-attempt rejection
+
+---
+
+# 📁 Directory Structure
+
+```text
+acelogic-devops/
+├── identity-compiler/
+├── local-policy-evaluator/
+├── crd/
+├── config-sync-repo/
+├── k8s/
+├── tests/
+├── scripts/
+├── docs/
+└── README.md
+```
+
+> Proprietary enterprise continuity modules are not included in this public repository.
+
+---
+
+# 🚀 Quick Start
+
+## Prerequisites
+
+Install:
+
+- Docker
+- kind or minikube
+- kubectl
+- openssl
+- Node.js
+
+---
+
+## Deployment
 
 ```bash
 cd scripts
+
 chmod +x *.sh
-./generate-certs.sh     # Generates TLS certificates using OpenSSL
-./deploy.sh             # Builds the Docker image and deploys the webhook
-./test.sh               # Basic acceptance tests
+
+./generate-certs.sh
+./deploy.sh
+./test.sh
 ```
 
-For a full suite of **hardening tests**, run:
+For full validation:
 
 ```bash
 ./complete-tests.sh
@@ -141,127 +364,118 @@ For a full suite of **hardening tests**, run:
 
 ---
 
-## 📊 Metrics and Audit Logging
+# 🔒 Security
 
-### 📈 Metrics Endpoint
-
-The webhook exposes a Prometheus‑style endpoint at `/metrics` with the following counters:
-
-| Metric                         | Description                                      |
-|--------------------------------|--------------------------------------------------|
-| `admission_allow_total`        | Approved pod creations                          |
-| `admission_deny_total`         | Rejected pod creations                          |
-| `identity_verify_fail_total`   | Rejections due to fingerprint mismatch          |
-| `purpose_verify_fail_total`    | Rejections due to purpose hash mismatch         |
-| `continuity_fail_total`        | Rejections due to duplicate identity            |
-| `lease_expired_total`          | Rejections due to expired lease                 |
-
-To scrape metrics, configure Prometheus to target the webhook service on port `8443` with the `/metrics` path.
-
-### 📝 Audit Logging
-
-All admission decisions are logged in **structured JSON format**, including:
-
-- Timestamp  
-- Request UID  
-- Pod namespace and name  
-- Decision (`ALLOW` / `DENY`)  
-- Denial reason (if applicable)  
-- Policy fingerprint (if matched)
+| Area | Implementation |
+|---|---|
+| TLS mutual auth | CA-signed webhook certificates |
+| HTTPS only | Port `8443` only |
+| Minimal RBAC | Restricted CRD access |
+| Namespace isolation | Label-scoped enforcement |
+| Fail-closed enforcement | Deny-by-default execution control |
 
 ---
 
-## 🧪 Testing
+# 📊 Capability Matrix
 
-| Test Script               | Purpose                                                                             |
-|---------------------------|-------------------------------------------------------------------------------------|
-| `test.sh`                 | Basic acceptance: valid pod (ALLOW), invalid pod (DENY), delete operation (ALLOW).  |
-| `complete-tests.sh`       | Hardening validation: missing fingerprint, invalid purpose hash, expired lease, duplicate identity, delete. |
-
-Run `./complete-tests.sh` to verify all denial reasons.
-
----
-
-## 📁 Directory Structure
-
-```text
-acelogic-devops/
-├── identity-compiler/       # SDK source (public reference)
-├── local-policy-evaluator/  # Webhook source and Dockerfile (public reference)
-├── crd/                     # AgentIdentityPolicy CRD
-├── config-sync-repo/        # Example Git repository structure
-├── k8s/                     # Kubernetes manifests
-├── tests/                   # Test pod definitions
-├── scripts/                 # Deployment and test automation
-├── docs/                    # Additional documentation
-└── README.md                # This file
-```
-
-> The proprietary `conflict-resolver/` component is not included in this public repository. Contact ACELOGIC for the full enterprise version.
+| Capability | Status |
+|---|---|
+| Admission Enforcement | ✅ Implemented |
+| Lease Validation | ✅ Implemented |
+| SAFE_MODE Enforcement | ✅ Implemented |
+| Namespace Projection | ✅ Implemented |
+| Duplicate Runtime Prevention | ✅ Implemented |
+| Continuity Validation | ✅ Implemented |
+| Metrics & Telemetry | ✅ Implemented |
+| Structured Audit Logging | ✅ Implemented |
+| Conflict Resolution Engine | ⚠️ Proprietary |
 
 ---
 
-## 🔒 Security
+# 🌐 Public Reference Architecture
 
-| Area                     | Implementation                                                                                 |
-|--------------------------|------------------------------------------------------------------------------------------------|
-| **TLS mutual auth**      | Webhook runs with a CA‑signed certificate; API server validates via CA bundle in `ValidatingWebhookConfiguration`. |
-| **HTTPS only**           | Listens exclusively on port `8443` — no plain HTTP endpoints.                                  |
-| **Minimal RBAC**         | Service account has only `get`, `list`, `watch` on `agentidentitypolicies`.                    |
-| **Namespace isolation**  | Webhook limited to namespaces labelled `acelogic.ai/enabled: "true"`.                          |
+This repository serves as the public reference implementation for the ACELOGIC™ deterministic identity control plane.
 
+Included in this public repository:
 
+- Identity Compiler SDK
+- Kubernetes admission enforcement layer
+- AgentIdentityPolicy CRD
+- Deployment manifests
+- Validation tests
+- Metrics and audit logging
+- Config Sync examples
+- Runtime governance examples
 
+This public implementation exists for:
 
+- infrastructure research
+- platform engineering reference
+- runtime governance validation
+- autonomous systems experimentation
+- Kubernetes integration testing
 
-
-
----
-
-## 📊 Capability Matrix
-
-| Capability                     | Status          |
-|--------------------------------|-----------------|
-| Admission Enforcement          | ✅ Implemented  |
-| Lease Validation               | ✅ Implemented  |
-| SAFE_MODE                      | ✅ Implemented  |
-| Namespace Projection           | ✅ Implemented  |
-| Metrics                        | ✅ Implemented  |
-| Audit Logging                  | ✅ Implemented  |
-| Conflict Resolution            | ⚠️ Proprietary  |
-
+For enterprise continuity infrastructure, distributed reconciliation, and advanced deterministic recovery systems, contact ACELOGIC™.
 
 ---
 
-## 🌐 Public Reference Architecture
+# 📄 License
 
-This repository is the **public reference implementation** of the ACELOGIC control plane for deterministic identity governance.  
+This repository is source-available for:
 
-**Included in this public repo:**
+- evaluation
+- research
+- infrastructure validation
+- educational reference
 
-- Identity Compiler SDK (core fingerprint and purpose hash)  
-- Admission webhook skeleton (cache, metrics, audit logging)  
-- AgentIdentityPolicy CRD and Kubernetes deployment manifests  
-- Example Config Sync structure and test pods  
-- Deployment scripts (TLS generation, deployment, testing)  
+Redistribution, commercial deployment, or derivative production usage requires explicit permission from ACELOGIC™.
 
-
-For the full enterprise implementation, contact ACELOGIC.
+See `LICENSE` for details.
 
 ---
 
-## 📄 License
+# 🌍 About NOVA X Quantum™
 
-This software is **source‑available** for reference and evaluation.  
-Redistribution, modification, or commercial use requires explicit permission from ACELOGIC.  
-See the `LICENSE` file in the repository root for details.
+NOVA X Quantum™ develops deterministic infrastructure for autonomous systems.
+
+Core infrastructure layers include:
+
+- ACELOGIC™ → identity + continuity governance
+- Machine Grammar #us#. → authority resolution
+- ACEPLACE™ → governed execution runtime
+- Continuity Notary™ → execution certification
+- NOVA 1000™ → structured reasoning architecture
+
+Together these systems establish deterministic execution infrastructure for autonomous systems operating across cloud, edge, Kubernetes, and AI-native environments.
 
 ---
+
+# ⚡ Final Statement
+
+Autonomous systems require more than orchestration.
+
+They require:
+
+- identity
+- authority
+- continuity
+- deterministic governance
+
+Cloud infrastructure restores workloads.
+
+ACELOGIC™ restores execution integrity.
+
+---
+
+# 🧠 ACELOGIC™
+
+Deterministic Infrastructure for Autonomous Systems
+
+🌐 https://www.acelogic.ai
 
 <!--
 ##############################################################################
 # End of File: README.md
-# Do not modify without code review
+# Do not modify without review
 ##############################################################################
 -->
-
