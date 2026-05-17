@@ -434,9 +434,9 @@ See `LICENSE` for details.
 
 ---
 
-# 🌍 About NOVA X Quantum™
+# 🌍 About NOVA X Quantum Inc. (NXQ)
 
-NOVA X Quantum™ develops deterministic infrastructure for autonomous systems.
+NXQ develops deterministic infrastructure for autonomous systems.
 
 Core infrastructure layers include:
 
