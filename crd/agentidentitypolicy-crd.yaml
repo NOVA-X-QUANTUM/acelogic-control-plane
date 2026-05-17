@@ -1,46 +1,71 @@
-# ############################################################
-# #                ACELOGIC PLATFORM v4                      #
-# ############################################################
-# # Module        : AGENTIDENTITYPOLICY-CRD
-# # Environment   : Development
-# # Version       : 4.0.2
-# # Updated       : 2026-05-12
-# #           
-# ############################################################
-# updated to v4.0.2 with additional fields and validation rules for 
-# enhanced security and functionality 
-
+############################################################
+# ACELOGIC PLATFORM v4
+############################################################
+# Module        : AGENTIDENTITYPOLICY-CRD
+# Environment   : Development
+# Version       : 4.1.0
+# Updated       : 2026-05-15
+#
+# Purpose:
+# Kubernetes CRD for deterministic identity governance,
+# continuity enforcement, namespace projection, and
+# autonomous execution authorization within the
+# ACELOGIC™ control plane.
+############################################################
 
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
+
 metadata:
   name: agentidentitypolicies.acelogic.ai
+
   annotations:
-    api-approved.kubernetes.io: "unapproved"  
+    api-approved.kubernetes.io: "unapproved"
+
 spec:
   group: acelogic.ai
+
   names:
     kind: AgentIdentityPolicy
+
     plural: agentidentitypolicies
+
     singular: agentidentitypolicy
+
     shortNames:
       - aip
+
     categories:
       - acelogic
+
   scope: Namespaced
+
   versions:
     - name: v1
+
       served: true
+
       storage: true
+
       subresources:
         status: {}
+
       schema:
         openAPIV3Schema:
           type: object
-          required: ["spec"]
+
+          required:
+            - spec
+
           properties:
+
+            ##################################################
+            # SPEC
+            ##################################################
+
             spec:
               type: object
+
               required:
                 - agentId
                 - licenseTier
@@ -54,99 +79,306 @@ spec:
                 - purposeHashAlgorithm
                 - purposeHash
                 - state
+                - continuity
                 - lease
+                - issuer
                 - lastUpdated
+
               properties:
+
+                ################################################
+                # Identity
+                ################################################
+
                 agentId:
                   type: string
+                  minLength: 3
+                  maxLength: 128
+
                 agentClass:
                   type: string
+
+                ################################################
+                # Governance
+                ################################################
+
                 licenseTier:
                   type: string
-                  enum: ["TIER_0", "TIER_1", "TIER_2", "TIER_3", "TIER_4", "TIER_5"]
+
+                  enum:
+                    - TIER_0
+                    - TIER_1
+                    - TIER_2
+                    - TIER_3
+                    - TIER_4
+                    - TIER_5
+
+                ################################################
+                # Grammar License
+                ################################################
+
                 grammarLicense:
                   type: object
-                  required: ["enabled", "level"]
+
+                  required:
+                    - enabled
+                    - level
+
                   properties:
+
                     enabled:
                       type: boolean
+
                     level:
                       type: string
-                      enum: ["NONE", "RESTRICTED", "FULL"]
+
+                      enum:
+                        - NONE
+                        - RESTRICTED
+                        - FULL
+
                     allowedPrefixes:
                       type: array
+
                       items:
                         type: string
+
+                ################################################
+                # Namespace Projection
+                ################################################
+
                 symbolicNamespace:
                   type: string
+
                 k8sNamespace:
                   type: string
+
                   pattern: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+
+                ################################################
+                # Mission
+                ################################################
+
                 mission:
                   type: string
+
+                  minLength: 3
+
+                ################################################
+                # Ownership
+                ################################################
+
                 owner:
-                  type: string
+                  type: object
+
+                  properties:
+
+                    orgId:
+                      type: string
+
+                    displayName:
+                      type: string
+
+                ################################################
+                # Fingerprint
+                ################################################
+
                 fingerprintAlgorithm:
                   type: string
-                  enum: ["SHA-256"]
+
+                  enum:
+                    - SHA3-256
+
                 fingerprintVersion:
                   type: string
-                  enum: ["v1"]
+
+                  enum:
+                    - v1
+
                 fingerprint:
                   type: string
+
                   pattern: "^[a-f0-9]{64}$"
+
+                ################################################
+                # Purpose Hash
+                ################################################
+
                 purposeHashAlgorithm:
                   type: string
-                  enum: ["SHA3-256"]
+
+                  enum:
+                    - SHA3-256
+
                 purposeHash:
                   type: string
+
                   pattern: "^[a-f0-9]{64}$"
-                covenantHash:
+
+                ################################################
+                # Continuity
+                ################################################
+
+                continuityHash:
                   type: string
+
                   nullable: true
+
                   pattern: "^[a-f0-9]{64}$"
+
+                continuity:
+                  type: object
+
+                  required:
+                    - enabled
+                    - continuityClass
+                    - continuityLevel
+                    - resurrectionAllowed
+
+                  properties:
+
+                    enabled:
+                      type: boolean
+
+                    continuityClass:
+                      type: string
+
+                    continuityLevel:
+                      type: string
+
+                    resurrectionAllowed:
+                      type: boolean
+
+                ################################################
+                # Identity Lineage
+                ################################################
+
+                lineage:
+                  type: object
+
+                  properties:
+
+                    registryId:
+                      type: string
+
+                    parent:
+                      type: string
+
+                      nullable: true
+
+                    genesisEpoch:
+                      type: integer
+
+                      minimum: 0
+
+                ################################################
+                # Runtime State
+                ################################################
+
                 state:
                   type: string
-                  enum: ["ACTIVE", "SAFE_MODE", "REVOKED"]
+
+                  enum:
+                    - ACTIVE
+                    - SAFE_MODE
+                    - REVOKED
+
                 safeModeReason:
                   type: string
+
                   nullable: true
+
+                ################################################
+                # Lease Governance
+                ################################################
+
                 lease:
                   type: object
-                  required: ["epoch", "expiresAt"]
+
+                  required:
+                    - epoch
+                    - expiresAt
+
                   properties:
+
                     epoch:
                       type: integer
+
                       minimum: 0
+
                     expiresAt:
                       type: string
+
                       format: date-time
+
+                ################################################
+                # Issuer
+                ################################################
+
+                issuer:
+                  type: object
+
+                  required:
+                    - authority
+                    - issuedBy
+
+                  properties:
+
+                    authority:
+                      type: string
+
+                    issuedBy:
+                      type: string
+
+                ################################################
+                # Source Attribution
+                ################################################
+
                 source:
                   type: object
+
                   x-kubernetes-preserve-unknown-fields: true
+
+                ################################################
+                # Lifecycle Metadata
+                ################################################
+
                 lastUpdated:
                   type: string
+
                   format: date-time
+
+      ########################################################
+      # kubectl Printer Columns
+      ########################################################
+
       additionalPrinterColumns:
+
         - name: Agent
           type: string
           jsonPath: .spec.agentId
+
         - name: Tier
           type: string
           jsonPath: .spec.licenseTier
-        - name: Grammar
-          type: string
-          jsonPath: .spec.grammarLicense.level
+
         - name: State
           type: string
           jsonPath: .spec.state
+
+        - name: Continuity
+          type: string
+          jsonPath: .spec.continuity.continuityLevel
+
         - name: Epoch
           type: integer
           jsonPath: .spec.lease.epoch
 
+        - name: Expires
+          type: date
+          jsonPath: .spec.lease.expiresAt
 
-# ############################################################
-# # End of File: agentidentitypolicy-crd.yaml
-# # Do not modify without code review
-# ############################################################
-
+############################################################
+# End of File: agentidentitypolicy-crd.yaml
+# Do not modify without code review
+############################################################
