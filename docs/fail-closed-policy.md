@@ -1,12 +1,41 @@
-# ACELOGIC Fail‑Closed / Fail‑Open Policy
+# ACELOGIC™ Admission Enforcement Policy
 
-## Admission Operations
+## Fail-Closed Operations
 
-- CREATE and UPDATE operations on pods are fail‑closed.
-  - If the ACELOGIC webhook is unreachable, returns an error, or rejects the request, the pod is not created.
-  - This ensures that no workload runs without a verified identity.
+CREATE and UPDATE operations are enforced as fail-closed.
 
-- DELETE operations on pods are fail‑open.
-  - The webhook does not intercept DELETE requests.
-  - Deletions are always allowed, even when the verifier is down, to prevent lock‑in and allow cluster recovery.
+If the ACELOGIC™ admission layer:
 
+- becomes unreachable
+- returns an error
+- fails policy validation
+- loses continuity verification capability
+- rejects execution authorization
+
+the workload is denied admission.
+
+This ensures workloads cannot enter execution without:
+
+- deterministic identity verification
+- continuity validation
+- policy enforcement
+- runtime authority approval
+
+Fail-closed enforcement preserves canonical execution integrity and prevents unauthorized or divergent runtime activation.
+
+---
+
+## Fail-Open Operations
+
+DELETE operations remain fail-open.
+
+The ACELOGIC™ admission layer does not intercept deletion requests.
+
+Workload deletion is always permitted, including during degraded admission-layer conditions, to ensure:
+
+- cluster recoverability
+- operational safety
+- workload cleanup
+- infrastructure restoration capability
+
+This prevents infrastructure lock-in scenarios during recovery or partial system failure events.
