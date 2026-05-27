@@ -9,7 +9,7 @@
 ##############################################################################
 -->
 
-# 🧠 ACELOGIC™ Control Plane
+# ACELOGIC™ Control Plane
 ## The Deterministic Identity & Continuity Layer for Autonomous Systems
 
 > Identity-aware runtime governance for autonomous systems operating across Kubernetes, cloud, edge, and AI-native infrastructure.
