@@ -36,7 +36,7 @@
 
 ---
 
-# ✨ Overview
+# Overview
 
 ACELOGIC™ is a deterministic identity and execution governance layer for distributed AI infrastructure.
 
@@ -64,7 +64,7 @@ ACELOGIC™ operates as a decentralized governance control plane for autonomous 
 
 ---
 
-# 🚨 The Infrastructure Problem
+# The Infrastructure Problem
 
 Modern orchestration systems restore workloads.
 
@@ -88,7 +88,7 @@ ACELOGIC™ introduces deterministic governance directly into the runtime admiss
 
 ---
 
-# ⚡ Why ACELOGIC™ Exists
+# Why ACELOGIC™ Exists
 
 Traditional orchestration systems schedule workloads.
 
@@ -129,7 +129,7 @@ The repository enables engineers and institutions to validate deterministic runt
 
 ---
 
-# 👥 Intended Audience
+# Intended Audience
 
 This repository is designed for:
 
@@ -143,7 +143,7 @@ This repository is designed for:
 
 ---
 
-# 📦 Components
+# Components
 
 | Component | Description |
 |---|---|
@@ -242,7 +242,7 @@ AI Agents / Autonomous Workloads
 
 ---
 
-# 🔐 Deterministic Governance Model
+# Deterministic Governance Model
 
 ACELOGIC™ introduces identity-aware runtime enforcement directly into Kubernetes execution flow.
 
@@ -277,7 +277,7 @@ This prevents:
 
 ---
 
-# 🌐 Infrastructure Positioning
+# Infrastructure Positioning
 
 ACELOGIC™ operates ABOVE orchestration infrastructure.
 
@@ -308,7 +308,7 @@ This enables deterministic enforcement before workload execution resumes.
 
 ---
 
-# 🌐 Distributed Infrastructure Support
+# Distributed Infrastructure Support
 
 ACELOGIC™ is designed for distributed environments including:
 
@@ -331,9 +331,9 @@ across cloud, edge, and telecom infrastructure.
 
 ---
 
-# 📊 Metrics and Audit Logging
+# Metrics and Audit Logging
 
-## 📈 Metrics Endpoint
+## Metrics Endpoint
 
 The webhook exposes a Prometheus-compatible `/metrics` endpoint.
 
@@ -349,7 +349,7 @@ The webhook exposes a Prometheus-compatible `/metrics` endpoint.
 
 ---
 
-## 📝 Audit Logging
+## Audit Logging
 
 All admission decisions are logged in structured JSON format including:
 
@@ -364,7 +364,7 @@ All admission decisions are logged in structured JSON format including:
 
 ---
 
-# 🧪 Testing
+# Testing
 
 | Test Script | Purpose |
 |---|---|
@@ -386,7 +386,7 @@ Validation scenarios include:
 
 ---
 
-# 📁 Directory Structure
+# Directory Structure
 
 ```text
 acelogic-devops/
@@ -405,7 +405,7 @@ acelogic-devops/
 
 ---
 
-# 🚀 Quick Start
+# Quick Start
 
 ## Prerequisites
 
@@ -439,7 +439,7 @@ For full validation:
 
 ---
 
-# 🔒 Security
+# Security
 
 | Area | Implementation |
 |---|---|
@@ -451,7 +451,7 @@ For full validation:
 
 ---
 
-# 📊 Capability Matrix
+# Capability Matrix
 
 | Capability | Status |
 |---|---|
@@ -470,7 +470,7 @@ For full validation:
 
 ---
 
-# 🌐 Public Reference Architecture
+# Public Reference Architecture
 
 This repository serves as the public reference implementation for the ACELOGIC™ deterministic governance control plane.
 
@@ -498,7 +498,7 @@ For enterprise continuity infrastructure, distributed reconciliation systems, de
 
 ---
 
-# 📄 License
+# License
 
 This repository is source-available for:
 
@@ -523,7 +523,7 @@ See `LICENSE` for details.
 
 ---
 
-# 🌎 About NOVA X Quantum Inc. (NXQ)
+# About NOVA X Quantum Inc. (NXQ)
 
 NXQ develops deterministic infrastructure for autonomous systems.
 
@@ -545,7 +545,7 @@ Together these systems establish deterministic execution infrastructure for auto
 
 ---
 
-# ⚡ Final Statement
+# Final Statement
 
 Autonomous systems require more than orchestration.
 
