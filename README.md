@@ -498,6 +498,44 @@ For enterprise continuity infrastructure, distributed reconciliation systems, de
 
 ---
 
+---
+
+# Design Goals
+
+ACELOGIC™ was designed around several deterministic infrastructure principles:
+
+- identity-aware workload governance
+- continuity-safe orchestration
+- split-brain prevention
+- fail-closed execution enforcement
+- deterministic runtime authority validation
+- canonical execution preservation
+- decentralized policy enforcement
+- Kubernetes-native infrastructure integration
+- audit-grade execution traceability
+- continuity-aware autonomous systems governance
+
+The architecture prioritizes deterministic runtime integrity over permissive autonomous workload recovery behavior.
+
+---
+
+# Citation
+
+If ACELOGIC™ contributes to your infrastructure research, runtime governance architecture, distributed systems validation, or autonomous systems deployment, please cite:
+
+```bibtex
+@software{acelogic_control_plane,
+  title   = {ACELOGIC™: Deterministic Identity and Continuity Governance for Autonomous Systems},
+  author  = {NOVA X Quantum},
+  year    = {2025-2026},
+  url     = {https://github.com/NOVA-X-QUANTUM/acelogic-control-plane}
+}
+```
+
+ACELOGIC™ is an active infrastructure research and runtime-governance initiative focused on deterministic identity, continuity enforcement, and autonomous systems orchestration.
+
+---
+
 # License
 
 This repository is source-available for:
